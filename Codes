@@ -1,0 +1,212 @@
+#include <DHT.h>
+#include <DHT_U.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+#define gaz_sensor A1
+#define yesil_led_pin 13
+#define kirmizi_led_pin 12
+#define motor_pin 9 
+#define nem_sensoru A0
+#define DHTPIN 3  
+#define toprak_nem_calisma_siniri 450
+#define DHTTYPE DHT11 
+#define sicaklik_oku 5
+#define sicaklik_sicak_led 4
+#define sicaklik_soguk_led 2
+#define nem_led1 8
+#define nem_led2 7
+#define nem_led3 6
+#define gaz_led 2
+
+int gaz_esik_deger = 400;
+int olculen_gaz_deger = 0;
+int topraktaki_nem_degeri = 0;
+int havadaki_nem_degeri = 0;
+
+OneWire oneWire(sicaklik_oku);
+DallasTemperature sensors(&oneWire);
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup()
+{
+ 
+  Serial.begin(9600);
+  sensors.begin();
+  dht.begin();
+
+  pinMode(gaz_led,OUTPUT);
+  pinMode(gaz_sensor,INPUT);
+  pinMode(sicaklik_sicak_led,OUTPUT);
+  pinMode(sicaklik_soguk_led,OUTPUT);
+  pinMode(2,OUTPUT); /*buzzer*/ 
+  pinMode(yesil_led_pin , OUTPUT);
+  pinMode(kirmizi_led_pin , OUTPUT);
+  pinMode(motor_pin , OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(nem_led1,OUTPUT);
+  pinMode(nem_led2,OUTPUT);
+  pinMode(nem_led3,OUTPUT);
+  pinMode(DHTPIN,OUTPUT);
+  pinMode(nem_sensoru,INPUT);
+
+}
+
+void loop()
+{
+
+  olculen_gaz_deger = analogRead(A1);
+  Serial.print("Ölçülen Gaz Değeri: ");
+  Serial.print(olculen_gaz_deger);
+  Serial.print("\n");
+  if(olculen_gaz_deger > gaz_esik_deger){
+    digitalWrite(gaz_led,HIGH);
+    delay(19000);
+  }
+  else{
+    digitalWrite(gaz_led,LOW);
+    }
+  
+  sensors.requestTemperatures();
+  delay(100);
+  Serial.print("(En İyi Sonuç)Havadaki Sıcaklık: ");
+  Serial.print(sensors.getTempCByIndex(0));
+  Serial.print("°C ");
+  Serial.print("\n");
+  
+  if(sensors.getTempCByIndex(0)>34){
+    digitalWrite(sicaklik_sicak_led,HIGH);
+    delay(50);
+    digitalWrite(sicaklik_sicak_led,LOW);
+    delay(50);
+    digitalWrite(sicaklik_sicak_led,HIGH);
+    delay(50);
+    digitalWrite(sicaklik_sicak_led,LOW);
+    delay(50);
+  }
+  else if (sensors.getTempCByIndex(0)<16){
+    digitalWrite(sicaklik_soguk_led,HIGH);
+    delay(50);
+    digitalWrite(sicaklik_soguk_led,LOW);
+    delay(50);
+    digitalWrite(sicaklik_soguk_led,HIGH);
+    delay(50);
+    digitalWrite(sicaklik_soguk_led,LOW);
+    delay(50);
+  }
+  else {
+    digitalWrite(sicaklik_sicak_led,LOW);
+    digitalWrite(sicaklik_soguk_led,LOW);
+  }
+  digitalWrite(2, LOW);
+  havadaki_nem_degeri = analogRead(DHTPIN);
+  
+  float havadaki_nem_degeri = dht.readHumidity();  
+  float t = dht.readTemperature(); 
+  
+  
+  Serial.print(F("Havadaki Nem Değeri: %"));
+  Serial.print(havadaki_nem_degeri);
+  Serial.print("\n");
+  Serial.print(F("(Yaklaşık)Havadaki Sıcaklık Değeri: "));
+  Serial.print(t);
+  Serial.print(F("°C "));
+  Serial.print("\n");
+
+  if(havadaki_nem_degeri < 40){
+    digitalWrite(nem_led1,HIGH);
+    delay(250);
+    digitalWrite(nem_led1,LOW);
+    delay(450);
+    digitalWrite(nem_led3,HIGH);
+    delay(250);
+    digitalWrite(nem_led3,LOW);
+    delay(450);
+    }
+    else if (havadaki_nem_degeri >= 40 || havadaki_nem_degeri <= 70 ) {
+    digitalWrite(nem_led2,HIGH);
+   }
+    else if(havadaki_nem_degeri > 70){
+    digitalWrite(nem_led3,HIGH);
+    delay(250);
+    digitalWrite(nem_led3,LOW);
+    delay(450);
+    digitalWrite(nem_led1,HIGH);
+    delay(250);
+    digitalWrite(nem_led1,LOW);
+    delay(450);
+   }
+
+  topraktaki_nem_degeri = analogRead(nem_sensoru);
+  Serial.print("Topraktaki Nem Değeri: ");
+  Serial.print(topraktaki_nem_degeri);
+  Serial.print("\n");
+
+  if (topraktaki_nem_degeri > toprak_nem_calisma_siniri)
+  {
+
+    
+    digitalWrite(yesil_led_pin, LOW);
+
+    digitalWrite(kirmizi_led_pin, HIGH);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, LOW);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, HIGH);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, LOW);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, HIGH);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, LOW);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, HIGH);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, LOW);
+    delay(250);
+    digitalWrite(yesil_led_pin, HIGH);
+    delay(250);
+    digitalWrite(yesil_led_pin, LOW);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, HIGH);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, LOW);
+    delay(250);
+    digitalWrite(yesil_led_pin, HIGH);
+    delay(250);
+    digitalWrite(yesil_led_pin, LOW);
+    delay(250);
+    digitalWrite(kirmizi_led_pin, HIGH);
+    delay(3000);
+    digitalWrite(motor_pin, HIGH);
+    delay(3000);
+    digitalWrite(motor_pin, LOW);
+    delay(1000);
+
+    digitalWrite(kirmizi_led_pin, LOW);
+
+    digitalWrite(yesil_led_pin, HIGH);
+    delay(250);
+    digitalWrite(yesil_led_pin, LOW);
+    delay(250);
+    digitalWrite(yesil_led_pin, HIGH);
+    delay(250);
+    digitalWrite(yesil_led_pin, LOW);
+    delay(250);
+    digitalWrite(yesil_led_pin, HIGH);
+    delay(250);
+    digitalWrite(yesil_led_pin, LOW);
+    delay(250);
+    digitalWrite(yesil_led_pin, HIGH);
+    delay(250);
+    digitalWrite(yesil_led_pin, LOW);
+    delay(250);
+  }
+   else if(topraktaki_nem_degeri < toprak_nem_calisma_siniri)
+  {
+    digitalWrite(kirmizi_led_pin, LOW);
+    digitalWrite(motor_pin, LOW);
+    digitalWrite(yesil_led_pin, HIGH);
+  }
+  
+}
